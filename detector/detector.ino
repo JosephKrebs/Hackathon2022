@@ -14,8 +14,8 @@
 // call usonic(timeout) to get return time in microseconds
 // divide result of usonic by 58 to get range in cm
 //define pins here
-#define TRIG 7
-#define ECHO 6
+#define TRIG 24
+#define ECHO 22
 #define USMAX 3000
 void setup() {
   Serial.begin(115200); //open serial port
