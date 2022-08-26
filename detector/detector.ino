@@ -1,49 +1,81 @@
-// Ultrasonic HC-SR04 unit interface
-// Uses serial port at 115200 baud for communication
-// use trig pin for output, echo pin for input
-// pulse out (10us) on trig initiates a cycle
-// pulse width returned on echo is proportional to distance
-// specs say 38ms = no return (beyond limit), but 90ms and more have been seen
-// set utimeout when calling usonic (routine will take longer for longer returns)
-// higher timeout measures further, but can take longer if no echo
-// if return >= utimeout, no valid pulse received
-// if return < ~100 unit is faulty/disconnected (routine is timing out waiting for start of return)
-// if return == 0 then unit is still sending return from last ping (or is faulty)
-// maximum nominal range is 5m => utimeout = 29000 us
-// call usonicsetup() during setup
-// call usonic(timeout) to get return time in microseconds
-// divide result of usonic by 58 to get range in cm
-//define pins here
-#define TRIG 24
-#define ECHO 22
-#define USMAX 3000
+/*
+  Ultrasonic Sensor HC-SR04 and Arduino Tutorial
+
+  by Dejan Nedelkovski,
+  www.HowToMechatronics.com
+
+*/
+#include "pitches.h"
+int speed=90;  //higher value, slower notes
+
+
+
+// ULTRASONIC SENSOR CODE.
+
+// defines pins numbers
+const int trigPin = 24;
+const int echoPin = 22;
+const int trigPin2 = 40;
+const int echoPin2 = 34;
+const int speakerPin = 44;
+
+// defines variables
+long duration;
+int distance;
 void setup() {
-  Serial.begin(115200); //open serial port
-  usonicsetup(); //set up ultrasonic sensor
+
+  pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+  pinMode(trigPin2, OUTPUT);
+  pinMode(echoPin2, INPUT);
+  
+  Serial.begin(115200); // Starts the serial communication
 }
 void loop() {
-  int d; //variable to store distance
-  d=usonic(11600)/58; //distance in cm, time out at 11600us or 2m maximum range
-  Serial.println(d); //print distance in cm
-  delay(200); //wait a bit so we don't overload the serial port
-}
-void usonicsetup(void){
-  pinMode(ECHO, INPUT);
-  pinMode(TRIG, OUTPUT);
-  digitalWrite(TRIG, LOW);
-}
+  // READ LEFT
+  // Clears the trigPin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(1);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  distance = duration * 0.034 / 2;
+  if (distance <= 220)
+  {
+    if (distance < 150)
+    {
+      // Play a tone to alert the user of the distance.
+      tone(speakerPin, 700);
+      delay(10);
+      noTone(speakerPin);
+    }
+    // Valid and acceptable distance.
+  }
+  // Prints the distance on the Serial Monitor
+  
 
-long usonic(long utimeout){ //utimeout is maximum time to wait for return in us
-  long b;
-  if(digitalRead(ECHO)==HIGH){return 0;} //if echo line is still low from last result, return 0;
-  digitalWrite(TRIG, HIGH); //send trigger pulse
-  delay(1);
-  digitalWrite(TRIG, LOW);
-  long utimer=micros();
-  while((digitalRead(ECHO)==LOW)&&((micros()-utimer)<1000)){} //wait for pin state to change return starts after 460us typically or timeout (eg if not connected)
-  utimer=micros();
-  while((digitalRead(ECHO)==HIGH)&&((micros()-utimer)<utimeout)){} //wait for pin state to change
-  b=micros()-utimer;
-  if(b==0){b=utimeout;}
-  return b;
+  // READ RIGHT
+  // Clears the trigPin
+  digitalWrite(trigPin2, LOW);
+  delayMicroseconds(1);
+  digitalWrite(trigPin2, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(trigPin2, LOW);
+  duration = pulseIn(echoPin2, HIGH);
+  // Calculating the distance
+  distance = duration * 0.034 / 2;
+  if (distance <= 220)
+  {
+    if (distance < 150)
+    {
+      // Play a tone to alert the user of the distance.
+      tone(speakerPin, 1200);
+      delay(10);
+      noTone(speakerPin);
+    }
+  }
+  // Prints the distance on the Serial Monitor
+
 }
