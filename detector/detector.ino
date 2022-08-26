@@ -7,8 +7,7 @@
 // set utimeout when calling usonic (routine will take longer for longer returns)
 // higher timeout measures further, but can take longer if no echo
 // if return >= utimeout, no valid pulse received
-// if return < ~100 unit is faulty/disconnected (routine is timing out waiting for start of
-return)
+// if return < ~100 unit is faulty/disconnected (routine is timing out waiting for start of return)
 // if return == 0 then unit is still sending return from last ping (or is faulty)
 // maximum nominal range is 5m => utimeout = 29000 us
 // call usonicsetup() during setup
